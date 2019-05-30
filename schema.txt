@@ -1,0 +1,25 @@
+package com.sundogsoftware.spark
+
+import org.apache.spark._
+import org.apache.spark.sql._
+
+object trans{
+  def main(args:Array[String])
+  {
+    val conf = new SparkConf()
+    conf.set("spark.app.name","AnyRandomName")
+    conf.set("spark.master","local[*]")
+    val sc = new SparkContext(conf)
+    val sqlContext = new SQLContext(sc)
+    
+    import org.apache.spark.sql.types._
+    
+    val sch = StructType(StructField("ID",IntegerType)::StructField("Random",StringType)::Nil)
+    
+    val dff = sqlContext.read.format("csv").schema(sch).load("C:\\Users\\gauravgy\\Documents\\SparkData\\ml-20m\\Test.csv")
+    
+    dff.show(5)
+    
+    sc.stop()
+  }
+}

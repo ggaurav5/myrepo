@@ -1,0 +1,11 @@
+spark.serializer org.apache.spark.serializer.KryoSerializer
+
+Spark supports different serialization mechanisms; the choice is a trade-off between speed, space efficiency, and full support of all Java objects.
+If you are using a serializer to cache your RDDs, you should strongly consider a fast serializer.
+The default serializer uses Java's default serialization.
+The KyroSerializer is much faster and generally uses about one-tenth of the memory as the default serializer.
+You can switch the serializer by changing spark.serializer to spark.KryoSerializer.
+If you want to use the KyroSerializer, you need to make sure that the classes are serializable by the KyroSerializer.
+
+
+https://spark.apache.org/docs/latest/configuration.html

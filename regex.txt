@@ -1,0 +1,32 @@
+package com.sundogsoftware.spark
+
+import org.apache.spark._
+import org.apache.spark.sql._
+
+object trans {
+  def main(args:Array[String])
+  {
+    val conf = new SparkConf()
+    conf.set("spark.app.name", "RandomApp")
+    conf.set("spark.master","local[*]")
+    
+    val sc = new SparkContext(conf)
+    
+    val sqlContext = new SQLContext(sc)
+    import sqlContext.implicits._
+    import scala.util.matching.Regex
+    case class Top(server:String, Service:String)
+    
+    val rdd1 = sc.textFile("C:\\Users\\gauravgy\\Desktop\\alert.txt")
+    val serverreg = "[A-Z]{3}[0-9]{3}".r
+    val servicereg = "- [a-zA-Z-_ ]+ is".r
+    val rdd2 = rdd1.map{x =>
+    val server = serverreg.findFirstIn(x)
+    val service_pre = servicereg.findFirstIn(x)
+    val service = service_pre.map(x => x.replace("- ","")).map(x => x.replace(" is",""))
+    (server,service)
+    }
+    rdd2.saveAsTextFile("C:\\Users\\gauravgy\\Desktop\\alertout")
+    sc.stop()
+  }
+}

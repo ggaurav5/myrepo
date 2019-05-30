@@ -1,0 +1,28 @@
+package com.sundogsoftware.spark
+
+import org.apache.spark._
+import org.apache.spark.sql._
+object trans{
+  def main(args: Array[String])
+  {
+    val conf = new SparkConf()
+    conf.set("spark.app.name","df")
+    conf.set("spark.master","local[*]")
+    conf.set("spark.executor.memory","2G")
+    conf.set("spark.driver.memory","2G")
+    val sc = new SparkContext(conf)
+    val sqlContext = new SQLContext(sc)
+    sc.setLogLevel("ERROR")
+    import sqlContext.implicits._
+    
+    val df1 = sqlContext.read.format("csv").option("header","true").option("inferSchema","true").load("C:\\Users\\gauravgy\\Documents\\SparkData\\ml-20m\\movies.csv")
+    val df2 = sqlContext.read.format("csv").option("header","true").option("inferSchema","true").load("C:\\Users\\gauravgy\\Documents\\SparkData\\ml-20m\\ratings.csv")
+    //df1.show(5)
+    //df2.show(5)
+    val dfjoin = df1 join(df2,df1("movieId")===df2("movieId"))
+    dfjoin.registerTempTable("people")
+    val dff = sqlContext.sql("select title, ceil(avg(rating)) as Rating, count(UserId) as Cnt from people group by title having ceil(avg(rating)) > 3 and count(UserId) > 5 order by Cnt DESC,Rating DESC")
+    dff.coalesce(1).write.format("csv").save("C:\\Users\\gauravgy\\Documents\\SparkData\\Outcsv")
+    sc.stop
+  }
+}

@@ -1,0 +1,32 @@
+package com.sundogsoftware.spark
+
+import org.apache.spark._
+import org.apache.spark.sql._
+
+case class ds(movieId: Int,title: String,genres:String) //should be declared outside of the singleton object
+
+object trans{
+  def main(args: Array[String])
+  {
+    val conf = new SparkConf()
+    conf.set("spark.app.name","TestApp")
+    conf.set("spark.master","local[*]")
+    val sc = new SparkContext(conf)
+    val sqlC = new SQLContext(sc)
+    sc.setLogLevel("ERROR")
+    import org.apache.spark.sql.types._
+    val sch = StructType(StructField("movieId",IntegerType)::StructField("title",StringType)::StructField("genres",StringType)::Nil)
+    val df1 = sqlC.read.format("csv").option("header","true").schema(sch).load("C:\\Users\\gauravgy\\Documents\\SparkData\\ml-20m\\movies.csv")
+    
+    import sqlC.implicits._
+
+    val ds1 = df1.as[ds]
+    //import scala.util.matching.Regex
+    val dsreg = "[0-9]{4}".r
+    val ds2 = ds1.map{q =>{
+      val yr = dsreg.findFirstIn(q.title).get
+      (q.title.split(yr)(0).slice(0, q.title.split(yr)(0).length() - 1),yr)}
+    }
+    ds2.show(20)
+  }
+}

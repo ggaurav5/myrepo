@@ -1,0 +1,17 @@
+// Define a regular Scala function
+val upper: String => String = _.toUpperCase
+
+// Define a UDF that wraps the upper Scala function defined above
+// You could also define the function in place, i.e. inside udf
+// but separating Scala functions from Spark SQL's UDFs allows for easier testing
+import org.apache.spark.sql.functions.udf
+val upperUDF = udf(upper)
+
+// Apply the UDF to change the source dataset
+scala> dataset.withColumn("upper", upperUDF('text)).show
++---+-----+-----+
+| id| text|upper|
++---+-----+-----+
+|  0|hello|HELLO|
+|  1|world|WORLD|
++---+-----+-----+

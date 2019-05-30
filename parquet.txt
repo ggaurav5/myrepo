@@ -1,0 +1,22 @@
+package com.sundogsoftware.spark
+
+import org.apache.spark._
+import org.apache.spark.sql._
+
+object trans{
+  def main(args:Array[String])
+  {
+    val conf = new SparkConf()
+    conf.set("spark.app.name","parquetout")
+    conf.set("spark.master","local[*]")
+    val sc = new SparkContext(conf)
+    val sqlContext = new SQLContext(sc)
+    import sqlContext.implicits_
+    
+    val dff = sqlContext.read.format("parquet").load("C:\\Users\\gauravgy\\Documents\\SparkData\\parquetout")
+    dff.registerTempTable("x")
+    sqlContext.sql("select movieId,tagId,ceil(relevance) from x").show()
+    sc.stop()
+    
+  }
+}
